@@ -71,11 +71,26 @@ class SaliencyMap:
         return [value]*len(x)
     
     # returns a map where each degree location in the map range represents the probability of a sound at that location.
-    # Probabilities are learned from the data
-    def ibl(self, x, attended_location, data):
+    # Probabilities are learned from the individual trials
+    # Inputs: x - a list representing the range of locations that sounds can be presented from
+    #         attended_location - represents the attended location for the current condition (probably -90,0,90 in the 180 degree case)
+    #         trials - a 2d list, where each row contains [trial id, sound location and frequency] 
+    # Outputs: saliency map - a list of size x. Each item in the list contains the probability that a sound will come from that location.
+    #                         Probability is calculated using the equations found in Lejarraga 2010. https://onlinelibrary.wiley.com/doi/abs/10.1002/bdm.722 
+    def ibl(self, x, attended_location, trials):
+        
+        saliency_map = []
         
         # TODO: replace this with IBL algorithm
-        return [0]*len(x)
+        # - Calculate the activation for each trial in trials (Equation 3 in paper)
+        # - For each location in x:
+        # - - calculate the activation value as if that location were the next trial in trials (trial id + 1) (Equation 3 in paper)
+        # - - calculate the probability of a sound coming from that location (Equation 2 in paper)
+        # - - append probability to saliency_map.
+        
+        # given a 2d array of data (each row represents one trial)
+        return saliency_map
+        
 
 class PriorityMap:
     def __init__(self, attended_location):
