@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.optimize import curve_fit
+from scipy.integrate import simps
 from math import exp
 
 import matplotlib.pyplot as plt
@@ -18,23 +19,40 @@ def optimize_prioritymap(attended_location, x, y, init_vals, min_bounds, max_bou
 
     return best_vals
 
-def rmse(xs,pm,experimental):
+def rmse(xs,pm,experimental,shift=0):
     error = 0
     
     i = 0
     for x in xs:
-        error += (experimental[i] - pm[x]) ** 2
+        error += (experimental[i] - pm[x+shift]) ** 2
         i += 1
         
     return error
 
-def plot_results(x,y,test_y,pm, filename):
+def plot_results_w_test(x,y,test_y,pm, filename):
     # range is from the first x value to the last one
-    degrees = np.arange(x[0],x[len(x)-1],1)
+    degrees = np.arange(x[0],x[len(x)-1]+1,1)
 
 
     plt.plot(x,y,'yo')
     plt.plot(x,test_y,'kx')
+    plt.plot(degrees,pm.goalmap,'b')
+    plt.plot(degrees,pm.saliencymap,'r')
+    plt.plot(degrees,pm.prioritymap,'g')
+
+    if filename != '':
+        plt.savefig(filename,format='png')
+    else:
+        plt.show()
+
+    plt.close()
+
+def plot_results(x,y,pm, filename):
+    # range is from the first x value to the last one
+    degrees = np.arange(x[0],x[len(x)-1]+1,1)
+
+
+    plt.plot(x,y,'yo')
     plt.plot(degrees,pm.goalmap,'b')
     plt.plot(degrees,pm.saliencymap,'r')
     plt.plot(degrees,pm.prioritymap,'g')
@@ -107,3 +125,7 @@ class PriorityMap:
         
         return self.prioritymap
 
+    def auc(self):
+        # calculate the area under the curve for the priority map.
+        return simps(self.prioritymap,dx=2)
+        
