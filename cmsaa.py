@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.optimize import curve_fit
-from scipy.integrate import simps
 from math import exp
 
 import matplotlib.pyplot as plt
@@ -15,8 +14,10 @@ def optimize_prioritymap(attended_location, x, y, init_vals, min_bounds, max_bou
 
     pm = PriorityMap(attended_location)
 
-    (best_vals,covar) = curve_fit(pm.standard, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
-
+    if len(init_vals) == 4:
+        (best_vals,covar) = curve_fit(pm.standard, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
+    elif len(init_vals) == 2:
+        (best_vals,covar) = curve_fit(pm.gmonly, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
     return best_vals
 
 def rmse(xs,pm,experimental,shift=0):
@@ -31,13 +32,14 @@ def rmse(xs,pm,experimental,shift=0):
 
 def plot_results_w_test(x,y,test_y,pm, filename):
     # range is from the first x value to the last one
-    degrees = np.arange(x[0],x[len(x)-1]+1,1)
+    degrees = np.arange(x[0],x[len(x)-1],1)
 
 
     plt.plot(x,y,'yo')
     plt.plot(x,test_y,'kx')
     plt.plot(degrees,pm.goalmap,'b')
-    plt.plot(degrees,pm.saliencymap,'r')
+    if (len(pm.saliencymap) > 0):
+        plt.plot(degrees,pm.saliencymap,'r')
     plt.plot(degrees,pm.prioritymap,'g')
 
     if filename != '':
@@ -49,12 +51,13 @@ def plot_results_w_test(x,y,test_y,pm, filename):
 
 def plot_results(x,y,pm, filename):
     # range is from the first x value to the last one
-    degrees = np.arange(x[0],x[len(x)-1]+1,1)
+    degrees = np.arange(x[0],x[len(x)-1],1)
 
 
     plt.plot(x,y,'yo')
     plt.plot(degrees,pm.goalmap,'b')
-    plt.plot(degrees,pm.saliencymap,'r')
+    if (len(pm.saliencymap) > 0):
+        plt.plot(degrees,pm.saliencymap,'r')
     plt.plot(degrees,pm.prioritymap,'g')
 
     if filename != '':
@@ -125,7 +128,12 @@ class PriorityMap:
         
         return self.prioritymap
 
-    def auc(self):
-        # calculate the area under the curve for the priority map.
-        return simps(self.prioritymap,dx=2)
+    def gmonly(self, x, gm_mag, gm_stdev):
+        gm = GoalMap(self.attended_location)
+
+        self.goalmap = gm.standard(x,gm_mag,gm_stdev)
+        self.saliencymap = []
+        self.prioritymap = self.goalmap
+
+        return self.prioritymap
         
