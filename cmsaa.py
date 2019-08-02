@@ -10,14 +10,21 @@ def attentional_bias(expRTs):
     return (2000 - np.array(expRTs))/2000
 
 
-def optimize_prioritymap(attended_location, x, y, init_vals, min_bounds, max_bounds):
+def optimize_prioritymap(attended_location, x, y, init_vals, min_bounds, max_bounds,pmtype=''):
 
     pm = PriorityMap(attended_location)
+    #print(len(init_vals))
+    #print(pmtype)
 
     if len(init_vals) == 4:
         (best_vals,covar) = curve_fit(pm.standard, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
     elif len(init_vals) == 2:
         (best_vals,covar) = curve_fit(pm.gmonly, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
+    elif len(init_vals) == 3:
+        (best_vals,covar) = curve_fit(pm.constantsm, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
+    elif len(init_vals) == 5:
+        (best_vals,covar) = curve_fit(pm.inhibitedgm, x, y, p0=init_vals, bounds=(min_bounds,max_bounds))
+        
     return best_vals
 
 def rmse(xs,pm,experimental,shift=0):
@@ -29,6 +36,30 @@ def rmse(xs,pm,experimental,shift=0):
         i += 1
         
     return error
+
+def pm_summary(attended_location, x, gm_mag, gm_stdev, sm_mag, sm_stdev):
+    pm = PriorityMap(attended_location)
+    pmmap = pm.standard(x, gm_mag, gm_stdev, sm_mag, sm_stdev)
+
+    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+
+def pm_summary_gmonly(attended_location, x, gm_mag, gm_stdev):
+    pm = PriorityMap(attended_location)
+    pmmap = pm.gmonly(x, gm_mag, gm_stdev)
+
+    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+
+def pm_summary_constantsm(attended_location, x, gm_mag, gm_stdev, sm_mag):
+    pm = PriorityMap(attended_location)
+    pmmap = pm.constantsm(x, gm_mag, gm_stdev, sm_mag)
+
+    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+
+def pm_summary_inhibitedgm(attended_location, x, gm_mag, gm_stdev, gm_mag2, gm_stdev2, sm_mag):
+    pm = PriorityMap(attended_location)
+    pmmap = pm.inhibitedgm(x, gm_mag, gm_mag2, gm_stdev, gm_stdev2, sm_mag)
+
+    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
 
 def plot_results_w_test(x,y,test_y,pm, filename):
     # range is from the first x value to the last one
@@ -78,6 +109,10 @@ class GoalMap:
     # shifts the goal map up or down by the minshift value
     def standard_minshift(self, x, mag, stdev, minshift):
         return minshift + standard(x,stdev, mag)
+
+    def inhibition(self, x, mag, mag2, stdev, stdev2):
+
+        return mag * np.exp(-abs(self.attended_location-x)**2 / (2*stdev**2)) + (mag2 - mag2 * np.exp(-abs(self.attended_location-x)**2 / (2*stdev2**2)))
 
 class SaliencyMap:
     def __init__(self, attended_location):
@@ -136,4 +171,25 @@ class PriorityMap:
         self.prioritymap = self.goalmap
 
         return self.prioritymap
+
+    def constantsm(self, x, gm_mag, gm_stdev, sm_mag):
+        gm = GoalMap(self.attended_location)
+        sm = SaliencyMap(self.attended_location)
+
+        self.goalmap = gm.standard(x,gm_mag,gm_stdev)
+        self.saliencymap = sm.constant(x, sm_mag)
+        self.prioritymap = self.goalmap + self.saliencymap
+
+        return self.prioritymap
+
+    def inhibitedgm(self,x, gm_mag, gm_mag2, gm_stdev, gm_stdev2, sm_mag):
+        gm = GoalMap(self.attended_location)
+        sm = SaliencyMap(self.attended_location)
+        
+        self.goalmap = gm.inhibition(x, gm_mag, gm_mag2, gm_stdev, gm_stdev2)
+        self.saliencymap = sm.constant(x, sm_mag)
+        self.prioritymap = self.goalmap + self.saliencymap
+        
+        return self.prioritymap
+        
         
