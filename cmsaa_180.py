@@ -19,7 +19,7 @@ x = np.array(stimuli_locations_180)
 
 # Standard model:
 #init_vals = [0.7662, 125, 0.760506149, 125]
-#min_bounds = [0.5, 50, 0.5, 50]
+#min_bounds = [0.5, 0, 0.5, 0]
 #max_bounds = [0.8,200,0.8,200]
 
 # GM Only model:
@@ -34,7 +34,7 @@ x = np.array(stimuli_locations_180)
 
 # Inhibited GM
 init_vals = [0.4, 0.4, 50, 50, 0.4]
-min_bounds = [0.3, 0.3, 50, 50, 0.3]
+min_bounds = [0.3, 0.3, 0, 0, 0.3]
 max_bounds = [0.5,0.5, 200, 200, 0.5]
 
 save_rows = []
@@ -68,10 +68,10 @@ for i in range(len(partitions)):
 
         degrees = np.arange(x[0],x[4],1)
         pm = PriorityMap(attended_location)
-        #pm.standard(degrees,*best_vals)
+        # pm.standard(degrees,*best_vals)
         # pm.gmonly(degrees,*best_vals)
         pm.inhibitedgm(degrees,*best_vals)
-        #pm.constantsm(degrees,*best_vals)
+        # pm.constantsm(degrees,*best_vals)
 
         train_error = rmse(x,pm.prioritymap,y)
 
@@ -80,7 +80,7 @@ for i in range(len(partitions)):
         test_y = np.array(attentional_bias(test_180[str(attended_location)]))
         test_error = rmse(x,pm.prioritymap,test_y)
 
-        plot_results_w_test(x, y, test_y, pm, 'results_inhibitedgm/images/' + str(attended_location) + '/180_' + str(attended_location) + '_bootstrap_' + str(i) + '.png')
+        plot_results_w_test(x, y, test_y, pm, 'results_inhibited_mingmsd/images/' + str(attended_location) + '/180_' + str(attended_location) + '_bootstrap_' + str(i) + '.png')
         save_cols = [180,attended_location,i]
         save_cols = np.append(save_cols,best_vals)
         save_cols = np.append(save_cols,[train_error,test_error,auc])
@@ -98,7 +98,7 @@ save_rows = np.array(save_rows).tolist()
 #save_rows = [['standard location','stimuli location','bootstrap row','gm mag','gm stdev','sm mag','train error','test error','auc']] + save_rows
 # Inhibited GM
 save_rows = [['standard location','stimuli location','bootstrap row','gm mag', 'gm mag2', 'gm stdev', 'gm stdev2', 'sm mag','train error','test error','auc']] + save_rows
-with open('results_inhibitedgm/180_params_inhibitedgm.csv','w') as fp:
+with open('results_inhibited_mingmsd/180_params_inhibited_mingmsd=0.csv','w') as fp:
     writer = csv.writer(fp,lineterminator='\n')
     writer.writerows(save_rows)
 
