@@ -27,12 +27,14 @@ def optimize_prioritymap(attended_location, x, y, init_vals, min_bounds, max_bou
         
     return best_vals
 
-def rmse(xs,pm,experimental,shift=0):
+def rmse(pm,experimental):
     error = 0
+
+    xs = [0,44,89,134,179]
     
     i = 0
     for x in xs:
-        error += (experimental[i] - pm[x+shift]) ** 2
+        error += (experimental[i] - pm[x]) ** 2
         i += 1
         
     return error
@@ -41,25 +43,25 @@ def pm_summary(attended_location, x, gm_mag, gm_stdev, sm_mag, sm_stdev):
     pm = PriorityMap(attended_location)
     pmmap = pm.standard(x, gm_mag, gm_stdev, sm_mag, sm_stdev)
 
-    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+    return [pmmap[0], pmmap[44], pmmap[89], pmmap[134], pmmap[179]]
 
 def pm_summary_gmonly(attended_location, x, gm_mag, gm_stdev):
     pm = PriorityMap(attended_location)
     pmmap = pm.gmonly(x, gm_mag, gm_stdev)
 
-    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+    return [pmmap[0], pmmap[44], pmmap[89], pmmap[134], pmmap[179]]
 
 def pm_summary_constantsm(attended_location, x, gm_mag, gm_stdev, sm_mag):
     pm = PriorityMap(attended_location)
     pmmap = pm.constantsm(x, gm_mag, gm_stdev, sm_mag)
 
-    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+    return [pmmap[0], pmmap[44], pmmap[89], pmmap[134], pmmap[179]]
 
 def pm_summary_inhibitedgm(attended_location, x, gm_mag, gm_stdev, gm_mag2, gm_stdev2, sm_mag):
     pm = PriorityMap(attended_location)
     pmmap = pm.inhibitedgm(x, gm_mag, gm_mag2, gm_stdev, gm_stdev2, sm_mag)
 
-    return [pmmap[-90], pmmap[-44], pmmap[-1], pmmap[44], pmmap[89]]
+    return [pmmap[0], pmmap[44], pmmap[89], pmmap[134], pmmap[179]]
 
 def plot_results_w_test(x,y,test_y,pm, filename):
     # range is from the first x value to the last one

@@ -4,11 +4,11 @@ import numpy as np
 
 x = np.arange(-90,90)
 #GLFree: -90
-#vals = pm_summary(-90,x,0.7645,50,0.7586,51.0609)
+#vals = pm_summary(-90,x,0.7714,36.5089,0.7557,37.6229)
 #GLFree: 0
-#vals = pm_summary(0,x,0.7708,50,0.8000,52.9654)
+#vals = pm_summary(0,x,0.7757,38.3343,0.7799,39.9178)
 #GLFree: 90
-#vals = pm_summary(0,x,0.7696,50,0.7607,50.5184)
+#vals = pm_summary(90,x,0.7684,14.1678,0.7552,14.7835)
 
 #GMOnly: -90
 #vals = pm_summary_gmonly(-90,x,0.8000,200.0000)
@@ -18,18 +18,18 @@ x = np.arange(-90,90)
 #vals = pm_summary_gmonly(90,x,0.8000,200.0000)
 
 #ConstantSM: -90
-#vals = pm_summary_constantsm(-90,x,0.3000,200,0.4808)
+vals = pm_summary_constantsm(90,x,0.3000,200,0.4940)
 #ConstantSM: 0
-#vals = pm_summary_constantsm(0,x,0.3000,200,0.4735)
+#vals = pm_summary_constantsm(0,x,0.3000,200,0.4940)
 #ConstantSM: 90
 #vals = pm_summary_constantsm(90,x,0.3000,200,0.5)
 
 #InhibitedGM: -90
-#vals = pm_summary_inhibitedgm(-90,x,0.3000,118.8839,0.5000,172.7045,0.4662)
+#vals = pm_summary_inhibitedgm(-90,x,0.3157,35.7374,0.3000,38.5088,0.4557)
 #InhibitedGM: 0
-#vals = pm_summary_inhibitedgm(0,x,0.3791,50.0021,0.4377,59.6354,0.3921)
+vals = pm_summary_inhibitedgm(0,x,0.3709,54.5736,0.4969,72.3209,0.4047)
 #InhibitedGM: 90
-#vals = pm_summary_inhibitedgm(90,x,0.4061,50,0.3973,50.8309,0.3595)
+vals = pm_summary_inhibitedgm(90,x,0.3945,14.0453,0.3813,15.1841,0.3739)
 
 
 print(vals)
